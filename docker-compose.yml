@@ -1,0 +1,10 @@
+version: "3.6"
+services:
+  app:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+      - bundle:/usr/local/bundle
+
+volumes:
+  bundle:
