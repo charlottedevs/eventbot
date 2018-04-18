@@ -9,17 +9,40 @@ RSpec.describe EventBouncer do
   end
 
   describe 'approve' do
-    it 'returns false if a match title is found on list' do
-      item = list.sample
+    context 'list matching' do
 
-      expect(subject.approve(list, item)).to be false
+      before do
+        allow(subject).to receive(:minimum_rsvp_count).and_return 0
+      end
+
+      it 'returns false if a match title is found on list' do
+        item = list.sample
+        expect(subject.approve(list, item)).to be false
+      end
+
+      it 'returns true if no matching title is found on list' do
+        item = { 'title' => 'bar' }
+        expect(subject.approve(list, item)).to be true
+      end
     end
 
-    it 'returns true if no matching title is found on list' do
-      item = { 'title' => 'bar' }
+    context 'minimum rsvp count' do
+      let(:item) do
+        { 'title' => 'bar' }
+      end
 
-      expect(subject.approve(list, item)).to be true
+      it 'returns true if >= minimum rsvp count' do
+        item['yes_rsvp_count'] = subject.minimum_rsvp_count
+        expect(subject.approve(list, item)).to be true
 
+        item['yes_rsvp_count'] = subject.minimum_rsvp_count + 1
+        expect(subject.approve(list, item)).to be true
+      end
+
+      it 'returns false if less than minimum rsvp count' do
+        item['yes_rsvp_count'] = subject.minimum_rsvp_count - 1
+        expect(subject.approve(list, item)).to be false
+      end
     end
   end
 end
