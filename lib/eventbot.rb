@@ -1,3 +1,5 @@
+require 'dotenv/load'
+
 require 'json'
 require 'time'
 require_relative './eventbot/discourse_client'
@@ -13,12 +15,14 @@ module EventBot
         next unless EventBouncer.approve(existing_topics, e)
         DiscourseClient.publish(e)
       end
+
+      puts "done"
     end
 
     def events
-      @events ||= raw_events.map do |e|
+      @events ||= raw_events.to_a.map do |e|
         e.merge(
-          'body' => e['description'] + "\n#{e['link']}",
+          'body' => "#{e['description']} \n\n#{e['link']}",
           'title' => "#{e['name']} (#{event_start(e)})"
         )
       end
