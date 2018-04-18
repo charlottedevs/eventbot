@@ -23,14 +23,23 @@ RSpec.describe EventBot do
       expect(subject.events).to_not be_empty
     end
 
-    %i(body).each do |attr|
+    %w(body title).each do |attr|
       it "an event has #{attr} property" do
         expect(event).to have_key(attr)
       end
     end
 
     it 'has the meetup url in the body property' do
-      expect(event[:body]).to include event['link']
+      expect(event['body']).to include event['link']
+    end
+
+    describe 'event start in titles' do
+      it 'has a valid meetup start in parens on title' do
+        title = event['title']
+        t = title.scan(/\((.*)\)/).flatten.first
+
+        expect { Time.parse t }.to_not raise_error
+      end
     end
   end
 end
