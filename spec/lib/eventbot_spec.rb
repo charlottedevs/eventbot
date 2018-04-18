@@ -42,4 +42,19 @@ RSpec.describe EventBot do
       end
     end
   end
+
+  describe '#publish_events' do
+    before do
+      allow(subject).to receive(:events).and_return events
+      allow(DiscourseClient).to receive(:event_topics).and_return []
+    end
+
+    let(:events) { [event] }
+    let(:event) { spy(:event) }
+
+    it 'iterates over all events and calls DiscourseClient#publish' do
+      expect(DiscourseClient).to receive(:publish).with(event)
+      subject.publish_events
+    end
+  end
 end

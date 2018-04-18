@@ -1,9 +1,20 @@
 require 'json'
 require 'time'
 require_relative './eventbot/discourse_client'
+require_relative './eventbot/event_bouncer'
+require_relative './eventbot/meetup_client'
 
 module EventBot
   class << self
+    def publish_events
+      existing_topics = DiscourseClient.event_topics
+
+      events.each do |e|
+        next unless EventBouncer.approve(existing_topics, e)
+        DiscourseClient.publish(e)
+      end
+    end
+
     def events
       @events ||= raw_events.map do |e|
         e.merge(
@@ -16,7 +27,7 @@ module EventBot
     private
 
     def raw_events
-      raise 'not implemented'
+      MeetupClient.tech_events
     end
 
     def event_start(event)
